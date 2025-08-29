@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+
+/* CSS สำหรับปุ่ม */
+#saveButton {
+    background-color: #4CAF50;
+    /* สีเขียว */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+#saveButton:active {
+    background-color: #45a049;
+    /* สีเขียวอื่นๆ เมื่อถูกคลิก */
+}
+
+#cancelButton {
+    background-color: #f44336;
+    /* สีแดง */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+#cancelButton:active {
+    background-color: #d32f2f;
+    /* สีแดงอื่นๆ เมื่อถูกคลิก */
+}
