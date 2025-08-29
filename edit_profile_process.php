@@ -1,66 +1,97 @@
 <?php
 session_start();
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if (empty($_SESSION['user_id'])) {
-    header("Location: login.php");
+    echo "<script>alert('กรุณาเข้าสู่ระบบ'); location='login.php';</script>";
+    exit();
 }
 
-$servername = "localhost";
+$host = "localhost";
 $usersname = "root";
 $password = "";
 $database = "data_time";
 
-$conn = mysqli_connect($servername, $usersname, $password, $database);
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-$user_id = $_SESSION['user_id'];
-$fname = $_POST['fname'];
-$lname = $_POST['lname'];
-$birth = $_POST['birth'];
-$sex = $_POST['sex'];
-$address = $_POST['address'];
-$phone = $_POST['phone'];
-$email = $_POST['email'];
+try {
+    $conn = new mysqli($host, $usersname, $password, $database);
+    $conn->set_charset("utf8mb4");
 
-// สร้างคำสั่ง SQL สำหรับการปรับปรุงข้อมูล
-$emp_id = $_SESSION['user_id'];
-$sql = "UPDATE employee
-        SET fname = '$fname', lname = '$lname', birth = '$birth', sex = '$sex', address = '$address', phone = '$phone', email = '$email'
-        WHERE emp_id = $emp_id";
+    $user_id = (int)$_SESSION['user_id'];
 
-if (mysqli_query($conn, $sql)) {
-    echo "success";
-} else {
-    echo "Data editing failed: " . mysqli_error($conn);
-}
+    $id      = isset($_POST['id']) ? (int)$_POST['id'] : $user_id;
+    if ($id !== $user_id) { throw new Exception("ไม่อนุญาตแก้ไขผู้ใช้อื่น"); }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // เพิ่มข้อมูลรูปภาพ
-    if (isset($_FILES["profile_image"]) && $_FILES["profile_image"]["error"] == 0) {
-        $target_dir = "uploads/"; // โฟลเดอร์เก็บไฟล์
-        $target_file = $target_dir . basename($_FILES["profile_image"]["name"]);
+    $fname   = $_POST['fname']   ?? '';
+    $lname   = $_POST['lname']   ?? '';
+    $birth   = $_POST['birth']   ?? null;
+    $sex     = $_POST['sex']     ?? '';
+    $email   = $_POST['email']   ?? '';
+    $phone   = $_POST['phone']   ?? '';
+    $address = $_POST['address'] ?? '';
 
-        // ตรวจสอบไฟล์รูปภาพ
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-            echo "Uploaded images must be image files only (jpg, jpeg, png, gif)";
-        } else {
-            if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $target_file)) {
-                // บันทึกที่อยู่ของรูปภาพในฐานข้อมูล
-                $image_path = $target_file;
-                $update_image_sql = "UPDATE employee SET image_path = '$image_path' WHERE emp_id = $user_id";
-                if ($conn->query($update_image_sql) === TRUE) {
-                    echo "Image uploaded successfully";
-                } else {
-                    echo "An error occurred while saving the image: " . $conn->error;
-                }
-            } else {
-                echo "There was an error uploading the photo";
+    $conn->begin_transaction();
+
+    $sql = "UPDATE employee
+            SET fname=?, lname=?, birth=?, sex=?, email=?, phone=?, address=?
+            WHERE emp_id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssssi", $fname, $lname, $birth, $sex, $email, $phone, $address, $id);
+    $stmt->execute();
+
+    $uploadedImage = false;
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+
+        if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception("อัปโหลดไฟล์ผิดพลาด (code: ".$_FILES['profile_image']['error'].")");
+        }
+
+        $mime = mime_content_type($_FILES['profile_image']['tmp_name']);
+        if (!in_array($mime, ['image/jpeg','image/png'])) {
+            throw new Exception("อนุญาตเฉพาะ JPG/PNG เท่านั้น");
+        }
+        if ($_FILES['profile_image']['size'] > 5*1024*1024) {
+            throw new Exception("ไฟล์รูปต้องไม่เกิน 5MB");
+        }
+
+        $uploadDir = __DIR__ . "/uploads";
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                throw new Exception("สร้างโฟลเดอร์อัปโหลดไม่สำเร็จ");
             }
         }
+
+        $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+        $newName = "emp_{$id}_" . time() . "." . $ext;
+        $targetPath = $uploadDir . "/" . $newName;
+
+        if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $targetPath)) {
+            throw new Exception("ย้ายไฟล์รูปไม่สำเร็จ");
+        }
+
+        $relativePath = "uploads/" . $newName;
+        $stmt2 = $conn->prepare("UPDATE employee SET image_path=? WHERE emp_id=?");
+        $stmt2->bind_param("si", $relativePath, $id);
+        $stmt2->execute();
+
+        $uploadedImage = true;
     }
+
+    $conn->commit();
+
+    $msg = "บันทึกสำเร็จ";
+    if ($uploadedImage) $msg .= " และอัปโหลดรูปสำเร็จ";
+    echo "<script>alert('$msg'); location='profile.php';</script>";
+    exit();
+
+} catch (Throwable $e) {
+    if (isset($conn) && $conn->errno === 0) {
+        $conn->rollback();
+    }
+    $err = addslashes($e->getMessage());
+    echo "<script>alert('บันทึกล้มเหลว: $err'); history.back();</script>";
+    exit();
 }
-mysqli_close($conn);
-?>

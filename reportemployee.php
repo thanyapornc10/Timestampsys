@@ -5,7 +5,6 @@ if (!isset($_SESSION['useradmin'])) {
     exit();
 }
 
-// เชื่อมต่อกับฐานข้อมูล
 $host = "localhost";
 $usersname = "root";
 $password = "";
@@ -17,7 +16,6 @@ if ($conn->connect_error) {
     die("Failed to connect to the database: " . $conn->connect_error);
 }
 
-// คิวรี่ฐานข้อมูลเพื่อดึงข้อมูลพนักงาน
 $sql = "SELECT employee.emp_id, employee.fname, employee.lname, department.dname, employee.birth, employee.sex, employee.email, employee.phone, employee.address
         FROM employee
         LEFT JOIN department ON employee.dep = department.dep_id";
@@ -29,15 +27,14 @@ if (isset($_GET['department_filter']) && $_GET['department_filter'] !== "") {
 
 $result = $conn->query($sql);
 ?>
+
 <!DOCTYPE html>
-<!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8" />
     <title>Reort all employee</title>
     <link rel="stylesheet" href="css/reportemst.css" />
-    <!-- Boxicons CDN Link -->
     <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
@@ -59,19 +56,16 @@ $result = $conn->query($sql);
             text-align: center;
         }
 
-        /* เพิ่มขีดเส้นรอบตาราง */
         table th {
             background-color: #f2f2f2;
         }
 
-        /* ขยายระยะห่างของแถวและคอลัมน์ */
         table tr,
         table th,
         table td {
             padding: 12px;
         }
 
-        /* ขนาดตัวอักษรของเนื้อหาในตาราง */
         table td {
             font-size: 18px;
         }
@@ -89,21 +83,21 @@ $result = $conn->query($sql);
             <li>
                 <a href="dashboard.php">
                     <i class="bx bx-grid-alt"></i>
-                    <span class="links_name">Attendace</span>
+                    <span class="links_name">Dashboard</span>
                 </a>
-                <span class="tooltip">Attendace</span>
+                <span class="tooltip">Dashboard</span>
             </li>
             <li>
                 <a href="reportemployee.php">
-                    <i class="bx bx-user"></i>
+                    <i class="bx bx-pie-chart-alt-2"></i>
                     <span class="links_name">Employee</span>
                 </a>
                 <span class="tooltip">Employee</span>
             </li>
             <li>
                 <a href="reporttime.php">
-                    <i class="bx bx-pie-chart-alt-2"></i>
-                    <span class="links_name">Report</span>
+                    <i class="bx bx-user"></i>
+                    <span class="links_name">Reort</span>
                 </a>
                 <span class="tooltip">Report</span>
             </li>
@@ -129,7 +123,7 @@ $result = $conn->query($sql);
                     <option value="HR">HR</option>
                     <option value="CEO">CEO</option>
                     <option value="SA">SA</option>
-                    <option value="Sup">Sup</option>
+                    <option value="Supp">Supp</option>
                 </select>
                 <button type="submit">Filter</button>
             </form>
@@ -144,7 +138,7 @@ $result = $conn->query($sql);
                     <th>Birthday</th>
                     <th>Gender</th>
                     <th>Email</th>
-                    <th>Phone#</th>
+                    <th>Phone</th>
                     <th>Adress</th>
                     <th>Edit</th>
                     <th>Delete</th>
@@ -174,29 +168,26 @@ $result = $conn->query($sql);
         </div>
     </section>
     <script>
-        //สอบถามความแน่ใจ
         function confirmDelete() {
             return confirm("Are you sure you want to delete this information?");
         }
-        //slidebar
         let sidebar = document.querySelector(".sidebar");
         let closeBtn = document.querySelector("#btn");
         let searchBtn = document.querySelector(".bx-search");
         closeBtn.addEventListener("click", () => {
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
         searchBtn.addEventListener("click", () => {
-            // Sidebar open when you click on the search iocn
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
-        // following are the code to change sidebar button(optional)
+
         function menuBtnChange() {
             if (sidebar.classList.contains("open")) {
-                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
             } else {
-                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
             }
         }
     </script>

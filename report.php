@@ -11,17 +11,14 @@ $usersname = "root";
 $password = "";
 $database = "data_time";
 
-// Create connection
 $conn = mysqli_connect($servername, $usersname, $password, $database);
 
-// Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
 $user_id = $_SESSION['user_id'];
 
-// คำสั่ง SQL ที่ใช้เรียกดูข้อมูล
 $sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, t.timedate, t.time_in, t.time_out, r.rname
         FROM employee e
         LEFT JOIN department d ON e.dep = d.dep_id
@@ -34,18 +31,16 @@ $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
-<!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="css/reportst.css" />
-    <!-- Boxicons CDN Link -->
     <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Report</title>
+
     <style>
-        /* CSS สำหรับการพิมพ์ */
         @media print {
             body {
                 font-size: 12px;
@@ -64,7 +59,6 @@ $result = $conn->query($sql);
             }
         }
 
-        /* CSS สำหรับการแสดงผลบนหน้าเว็บ */
         body {
             font-size: 16px;
         }
@@ -131,7 +125,6 @@ $result = $conn->query($sql);
     <section class="home-section">
         <div class="content">
             <h1>Report</h1>
-            <!-- เพิ่มแบบฟอร์มสำหรับเลือกวันที่ -->
             <form method="post" action="report.php">
                 <label for="start_date">Start:</label>
                 <input type="date" name="start_date" required>
@@ -139,7 +132,7 @@ $result = $conn->query($sql);
                 <input type="date" name="end_date" required>
                 <input type="submit" value="Report">
             </form>
-            
+
             <br><br>
             <table>
                 <tr>
@@ -153,12 +146,10 @@ $result = $conn->query($sql);
                     <th>Reason</th>
                 </tr>
                 <?php
-                // เพิ่มโค้ด PHP เพื่อรับวันที่เริ่มต้นและสิ้นสุดจากแบบฟอร์ม
                 if (isset($_POST['start_date']) && isset($_POST['end_date'])) {
                     $start_date = $_POST['start_date'];
                     $end_date = $_POST['end_date'];
 
-                    // สร้างคำสั่ง SQL ที่ใช้วันที่เป็นเงื่อนไข
                     $sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, t.timedate, t.time_in, t.time_out, r.rname
                     FROM employee e
                     LEFT JOIN department d ON e.dep = d.dep_id
@@ -168,7 +159,6 @@ $result = $conn->query($sql);
                     AND t.timedate BETWEEN '$start_date' AND '$end_date'
                     ORDER BY t.timedate";
                 } else {
-                    // คำสั่ง SQL เดิมที่ใช้รหัสพนักงานเท่านั้น
                     $sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, t.timedate, t.time_in, t.time_out, r.rname
                     FROM employee e
                     LEFT JOIN department d ON e.dep = d.dep_id
@@ -178,7 +168,6 @@ $result = $conn->query($sql);
                     ORDER BY t.timedate";
                 }
 
-                // ดำเนินการคิวรีดึงข้อมูล
                 $result = $conn->query($sql);
 
                 if ($result->num_rows > 0) {
@@ -203,25 +192,24 @@ $result = $conn->query($sql);
     </section>
 
     <script>
-        //slidebar
         let sidebar = document.querySelector(".sidebar");
         let closeBtn = document.querySelector("#btn");
         let searchBtn = document.querySelector(".bx-search");
         closeBtn.addEventListener("click", () => {
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
         searchBtn.addEventListener("click", () => {
-            // Sidebar open when you click on the search iocn
+
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
-        // following are the code to change sidebar button(optional)
+
         function menuBtnChange() {
             if (sidebar.classList.contains("open")) {
-                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
             } else {
-                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
             }
         }
     </script>

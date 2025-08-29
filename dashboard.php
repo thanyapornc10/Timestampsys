@@ -5,25 +5,20 @@ if (!isset($_SESSION['useradmin'])) {
     exit();
 }
 
-// เชื่อมต่อกับฐานข้อมูลอีกครั้ง
 $servername = "localhost";
 $usersname = "root";
 $password = "";
 $database = "data_time";
 
-// Create connection
 $conn = mysqli_connect($servername, $usersname, $password, $database);
 
-// Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// คำสั่ง SQL เพื่อนับจำนวนพนักงาน
 $sql = "SELECT COUNT(*) AS employee_count FROM employee";
 $result = mysqli_query($conn, $sql);
 
-// ปิดการเชื่อมต่อกับฐานข้อมูล
 mysqli_close($conn);
 ?>
 
@@ -50,7 +45,7 @@ mysqli_close($conn);
             top: 0;
             width: 78px;
             height: 100%;
-            background-color: #4CAF50; /* Green color */
+            background-color: #4CAF50;
             color: white;
             text-align: center;
             font-size: 24px;
@@ -62,7 +57,6 @@ mysqli_close($conn);
             font-size: 36px;
         }
 
-          /* Google Font Link */
           .home-section {
             position: relative;
             background: #e4e9f7;
@@ -138,25 +132,22 @@ mysqli_close($conn);
             </div>
     </section>
     <script>
-        //slidebar
         let sidebar = document.querySelector(".sidebar");
         let closeBtn = document.querySelector("#btn");
         let searchBtn = document.querySelector(".bx-search");
         closeBtn.addEventListener("click", () => {
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
         searchBtn.addEventListener("click", () => {
-            // Sidebar open when you click on the search iocn
             sidebar.classList.toggle("open");
-            menuBtnChange(); //calling the function(optional)
+            menuBtnChange();
         });
-        // following are the code to change sidebar button(optional)
         function menuBtnChange() {
             if (sidebar.classList.contains("open")) {
-                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
             } else {
-                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+                closeBtn.classList.replace("bx-menu-alt-right", "bx-menu");
             }
         }
     </script>

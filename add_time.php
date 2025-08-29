@@ -10,10 +10,8 @@ $usersname = "root";
 $password = "";
 $database = "data_time";
 
-// Create connection
 $conn = mysqli_connect($servername, $usersname, $password, $database);
 
-// Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
@@ -35,11 +33,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 <script>
-    // Check if the PHP has echoed a success message
-let successMessage = "<?php echo isset($_POST['date']) ? 'Time recorded successfully' : '' ?>";
-if (successMessage) {
-  alert(successMessage); // Optional: Show a message to the user
-  window.location.href = 'attendace.php'; // Redirect to the "attendace.php" page
-}
-
+    let successMessage = "<?php echo isset($_POST['date']) ? 'Time recorded successfully' : '' ?>";
+    if (successMessage) {
+        alert(successMessage);
+        window.location.href = 'attendace.php';
+    }
 </script>

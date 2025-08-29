@@ -1,112 +1,100 @@
 <?php
 session_start();
+if (empty($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $servername = "localhost";
 $usersname = "root";
-$password = "";
-$database = "data_time";
+$password   = "";
+$database   = "data_time";
 
-// Create connection
-$conn = mysqli_connect($servername, $usersname, $password, $database);
+$conn = new mysqli($servername, $usersname, $password, $database);
+$conn->set_charset("utf8mb4");
 
-// Check connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-// ส่วนของคิวรีอ่านข้อมูลผู้ใช้
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, e.birth, e.sex, e.address, e.phone, e.email
+
+$sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, e.birth, e.sex, e.address, e.phone, e.email, e.image_path
         FROM employee e
         LEFT JOIN department d ON e.dep = d.dep_id
-        WHERE e.emp_id = $user_id";
-$result = $conn->query($sql);
-
-if ($result->num_rows == 1) {
-    $row = $result->fetch_assoc();
-}
+        WHERE e.emp_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
 ?>
-
 <!DOCTYPE html>
-<html>
-
+<html lang="th">
 <head>
-    <title>Editprofile</title>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="css/profileedit.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8">
+  <title>Edit Profile</title>
+  <style>
+    body{font-family:sans-serif;background:#f2f3f5}
+    .card{max-width:720px;margin:40px auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    .row{display:flex;gap:12px;margin-bottom:12px}
+    .row label{width:160px;display:flex;align-items:center;font-weight:600}
+    .row input,.row select{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
+    .img-box{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+    .img-box img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:1px solid #ddd}
+    .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
+    .btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer}
+    .btn-success{background:#16a34a;color:#fff}
+    .btn-danger{background:#ef4444;color:#fff;text-decoration:none;display:inline-block}
+  </style>
 </head>
-
 <body>
-    
-    <section>
-        <div class="container">
-        <p id="successMessage" style="color: green; display: none;">The recording was successful</p>
-            <h1>แก้ไขข้อมูล</h1>
-            <form method="post" action="edit_profile_process.php" enctype="multipart/form-data">
-                <!-- เพิ่มฟิลด์สำหรับอัปโหลดรูปภาพ -->
-                <label for="profile_image">Profile:</label>
-                <input type="file" name="profile_image"><br><br>
-                <label for="dep">Employee ID:</label>
-                <input type="text" name="emp_id" value="<?php echo $row['emp_id']; ?>" disabled='disabled'><br><br>
-                <label for="fname">Firstname:</label>
-                <input type="text" name="fname" value="<?php echo $row['fname']; ?>"><br><br>
-                <label for="lname">Lastname:</label>
-                <input type="text" name="lname" value="<?php echo $row['lname']; ?>"><br><br>
-                <label for="dep">Department:</label>
-                <input type="text" name="dep" value="<?php echo $row['dname']; ?>" disabled='disabled'><br><br>
-                <label for="birth">Birthday:</label>
-                <input type="date" name="birth" value="<?php echo $row['birth']; ?>"><br><br>
-                <label for="birth">Gender:</label>
-                <input type="text" name="sex" value="<?php echo $row['sex']; ?>"><br><br>
-                <label for="address">Address:</label>
-                <input type="text" name="address" value="<?php echo $row['address']; ?>"><br><br>
-                <label for="phone">Phone:</label>
-                <input type="text" name="phone" value="<?php echo $row['phone']; ?>"><br><br>
-                <label for="email">Email:</label>
-                <input type="email" name="email" value="<?php echo $row['email']; ?>"><br><br>
-                <p id="successMessage" style="color: green;"></p>
-                <input type="submit" value="Save" id="saveButton">
-                <button type="button" id="cancelButton" onclick="cancelEdit()">Cancel</button>
-            </form>
-        </div>
-    </section>
-    <script>
-        var saveButton = document.getElementById("saveButton");
-        var successMessage = document.getElementById("successMessage");
+  <div class="card">
+    <h2>Edit Profile</h2>
 
-        saveButton.addEventListener("click", function(event) {
-            event.preventDefault();
-            var formData = new FormData(document.querySelector("form"));
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "edit_profile_process.php", true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    if (xhr.responseText == "success") {
-                        successMessage.textContent = "The recording was successful";
-                        successMessage.style.color = "green";
-                        successMessage.style.display = "block";
-                        // เรียก redirectToProfile() เพื่อนำผู้ใช้กลับไปยังหน้าโปรไฟล์
-                        redirectToProfile();
-                    } else {
-                        alert("Data editing failed: " + xhr.responseText);
-                    }
-                }
-            };
-            xhr.send(formData);
-        });
+    <div class="img-box">
+      <img src="<?= !empty($row['image_path']) ? htmlspecialchars($row['image_path']) : 'uploads/default.jpg' ?>" alt="profile">
+      <div>
+        <div><small>JPG/PNG (max ~5MB)</small></div>
+      </div>
+    </div>
 
-        function cancelEdit() {
-            window.location.href = "profile.php";
-        }
+    <form action="edit_profile_process.php" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="<?= htmlspecialchars($row['emp_id']) ?>">
 
-        function redirectToProfile() {
-            setTimeout(function() {
-                window.location.href = "profile.php";
-            }, 2000);
-        }
-    </script>
+      <div class="row">
+        <label>Profile image</label>
+        <input type="file" name="profile_image" accept="image/png,image/jpeg">
+      </div>
+
+      <div class="row"><label>Firstname</label>
+        <input type="text" name="fname" value="<?= htmlspecialchars($row['fname'] ?? '') ?>">
+      </div>
+      <div class="row"><label>Lastname</label>
+        <input type="text" name="lname" value="<?= htmlspecialchars($row['lname'] ?? '') ?>">
+      </div>
+      <div class="row"><label>Birth</label>
+        <input type="date" name="birth" value="<?= htmlspecialchars($row['birth'] ?? '') ?>">
+      </div>
+      <div class="row"><label>Gender</label>
+        <select name="sex">
+          <option value="Male"   <?= ($row['sex'] ?? '')==='Male'?'selected':''; ?>>Male</option>
+          <option value="Female" <?= ($row['sex'] ?? '')==='Female'?'selected':''; ?>>Female</option>
+        </select>
+      </div>
+      <div class="row"><label>Address</label>
+        <input type="text" name="address" value="<?= htmlspecialchars($row['address'] ?? '') ?>">
+      </div>
+      <div class="row"><label>Phone</label>
+        <input type="text" name="phone" value="<?= htmlspecialchars($row['phone'] ?? '') ?>">
+      </div>
+      <div class="row"><label>Email</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($row['email'] ?? '') ?>">
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-success" type="submit">Save</button>
+        <a class="btn btn-danger" href="profile.php">Cancel</a>
+      </div>
+    </form>
+  </div>
 </body>
-
 </html>

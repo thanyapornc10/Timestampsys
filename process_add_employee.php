@@ -1,64 +1,96 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $emp_id = $_POST['emp_id'];
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $dep = $_POST['dep'];
-    $sex = $_POST['sex'];
-    $birth = $_POST['birth'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $address = $_POST['address'];
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: add_employee.php");
+    exit();
+}
 
-    // 1. อัปโหลดรูปภาพ
-    $image = $_FILES['image'];
-    $image_name = $image['name'];
-    $image_tmp = $image['tmp_name'];
-    $image_path = "uploads/" . $image_name;
+$fname    = trim($_POST['fname'] ?? '');
+$lname    = trim($_POST['lname'] ?? '');
+$dep      = trim($_POST['dep'] ?? '');
+$sex      = trim($_POST['sex'] ?? '');
+$birth    = trim($_POST['birth'] ?? '');
+$email    = trim($_POST['email'] ?? '');
+$phone    = trim($_POST['phone'] ?? '');
+$address  = trim($_POST['address'] ?? '');
+$username = trim($_POST['username'] ?? '');
+$userpass = $_POST['password'] ?? '';
 
-    if (move_uploaded_file($image_tmp, $image_path)) {
-        echo "Image uploaded successfully";
-        
-        // 2. นำข้อมูลเข้าสู่ฐานข้อมูล
-        $servername = "localhost";
-        $usersname = "root";
-        $password = "";
-        $database = "data_time";
+$image_path = 'uploads/default.jpg';
 
-        $conn = mysqli_connect($servername, $usersname, $password, $database);
-
-        if (!$conn) {
-            die("Connection failed: " . mysqli_connect_error());
+if (!empty($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['profile_image'];
+    $allowed = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $size_ok = ($file['size'] <= 5 * 1024 * 1024);
+    if (in_array($ext, $allowed) && $size_ok) {
+        if (!is_dir('uploads')) {
+            mkdir('uploads', 0777, true);
         }
-
-        $sql = "INSERT INTO employee (emp_id, fname, lname, dep, sex, birth, email, phone, address, image_path)
-                VALUES ('$emp_id', '$fname', '$lname', '$dep', '$sex', '$birth', '$email', '$phone', '$address', '$image_path')";
-
-        if (mysqli_query($conn, $sql)) {
-            // 3. เพิ่มชื่อผู้ใช้และรหัสผ่าน
-            $user_sql = "INSERT INTO users (username, password, users_id)
-                         VALUES ('$username', '$password', '$emp_id')";
-            if (mysqli_query($conn, $user_sql)) {
-                // บันทึกสำเร็จ
-                echo "Employee information has been added successfully.";
-                
-                // แสดง Alert
-                echo "<script>alert('Employee information has been added successfully.');</script>";
-                
-                // กลับไปที่หน้า reportemployee.php
-                echo "<script>window.location.href = 'reportemployee.php';</script>";
-            } else {
-                echo "Failed to add employee information: " . mysqli_error($conn);
-            }
+        $newname = 'emp_' . uniqid() . '.' . $ext;
+        $dest = 'uploads/' . $newname;
+        if (move_uploaded_file($file['tmp_name'], $dest)) {
+            $image_path = $dest;
         } else {
-            echo "Failed to add employee information: " . mysqli_error($conn);
+            echo "Image upload failed (move error)";
+            exit();
         }
-
-        mysqli_close($conn);
     } else {
-        echo "Image upload failed";
+        echo "Invalid image (type/size).";
+        exit();
     }
 }
-?>
+
+$db_host = "localhost";
+$db_user = "root";
+$db_pass = "";
+$db_name = "data_time";
+
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+if (!$conn) {
+    die("DB connection failed: " . mysqli_connect_error());
+}
+
+mysqli_begin_transaction($conn);
+
+try {
+    $sql_emp = "INSERT INTO employee (fname, lname, dep, sex, birth, email, phone, address, image_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql_emp);
+    mysqli_stmt_bind_param(
+        $stmt,
+        "ssissssss",
+        $fname,
+        $lname,
+        $dep,
+        $sex,
+        $birth,
+        $email,
+        $phone,
+        $address,
+        $image_path
+    );
+    if (!mysqli_stmt_execute($stmt)) {
+        throw new Exception("Insert employee failed: " . mysqli_error($conn));
+    }
+    $emp_id = mysqli_insert_id($conn);
+
+    $pass_hash = password_hash($userpass, PASSWORD_DEFAULT);
+    $sql_user = "INSERT INTO users (users_id, username, password) VALUES (?, ?, ?)";
+    $stmt2 = mysqli_prepare($conn, $sql_user);
+    mysqli_stmt_bind_param($stmt2, "iss", $emp_id, $username, $pass_hash);
+    if (!mysqli_stmt_execute($stmt2)) {
+        throw new Exception("Insert user failed: " . mysqli_error($conn));
+    }
+
+    mysqli_commit($conn);
+
+    echo "<script>alert('Employee added successfully.');window.location.href='reportemployee.php';</script>";
+    exit();
+} catch (Exception $e) {
+    mysqli_rollback($conn);
+    echo "Error: " . $e->getMessage();
+} finally {
+    if (isset($stmt)) mysqli_stmt_close($stmt);
+    if (isset($stmt2)) mysqli_stmt_close($stmt2);
+    mysqli_close($conn);
+}

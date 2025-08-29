@@ -10,10 +10,8 @@ $usersname = "root";
 $password = "";
 $database = "data_time";
 
-// Create connection
 $conn = mysqli_connect($servername, $usersname, $password, $database);
 
-// Check connection
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
@@ -37,7 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 
 <head>
@@ -47,7 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="js/main.js" defer></script>
   <script src="js/addtendace.js"></script>
   <script src="js/submit.js" defer></script>
-  <!-- Boxicons CDN Link -->
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>

@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo "<a href='reportemployee.php'>Cancel</a>";
 }
 
-// เชื่อมต่อกับฐานข้อมูล
 $host = "localhost";
 $usersname = "root";
 $password = "";
@@ -29,7 +28,6 @@ if ($conn->connect_error) {
     die("Failed to connect to database: " . $conn->connect_error);
 }
 
-// ลบข้อมูลพนักงาน
 $sql = "DELETE FROM employee WHERE emp_id = $employeeId";
 
 if ($conn->query($sql) === TRUE) {
