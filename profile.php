@@ -94,7 +94,6 @@ if ($imageResult && $imageResult->num_rows > 0) {
             <br><br>
 
             <?php if ($user): ?>
-                Employee Image<br>
                 Employee ID: <?php echo htmlspecialchars($user['emp_id']); ?><br>
                 Firstname: <?php echo htmlspecialchars($user['fname']); ?><br>
                 Lastname: <?php echo htmlspecialchars($user['lname']); ?><br>

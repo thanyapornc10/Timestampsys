@@ -28,7 +28,6 @@ if (!$emp_id || !$dep) {
   exit();
 }
 
-// อัปโหลดรูป (ออปชันนัล)
 $imageSqlPart = "";
 $imageParam = null;
 
@@ -53,7 +52,6 @@ if (!empty($_FILES['image']['name'])) {
       echo "<script>alert('Upload failed'); history.back();</script>"; exit();
     }
 
-    // เก็บ path สำหรับใช้ในเว็บ
     $publicPath = "uploads/".$newName;
     $imageSqlPart = ", image_path = ?";
     $imageParam = $publicPath;
@@ -62,7 +60,6 @@ if (!empty($_FILES['image']['name'])) {
   }
 }
 
-// UPDATE
 $sql = "UPDATE employee
         SET fname = ?, lname = ?, dep = ?, birth = ?, sex = ?, email = ?, phone = ?, address = ?"
         . $imageSqlPart .
@@ -71,10 +68,8 @@ $sql = "UPDATE employee
 $stmt = $conn->prepare($sql);
 
 if ($imageParam === null) {
-  // 9 ตัวแปร -> type string ต้องมี 9 ตัว: s s i s s s s s i
   $stmt->bind_param("ssisssssi", $fname, $lname, $dep, $birth, $sex, $email, $phone, $address, $emp_id);
 } else {
-  // 10 ตัวแปร -> type string ต้องมี 10 ตัว: s s i s s s s s s i
   $stmt->bind_param("ssissssssi", $fname, $lname, $dep, $birth, $sex, $email, $phone, $address, $imageParam, $emp_id);
 }
 

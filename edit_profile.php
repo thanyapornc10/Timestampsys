@@ -1,8 +1,8 @@
 <?php
 session_start();
 if (empty($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  header("Location: login.php");
+  exit();
 }
 
 ini_set('display_errors', 1);
@@ -29,23 +29,89 @@ $row = $stmt->get_result()->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <title>Edit Profile</title>
   <style>
-    body{font-family:sans-serif;background:#f2f3f5}
-    .card{max-width:720px;margin:40px auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-    .row{display:flex;gap:12px;margin-bottom:12px}
-    .row label{width:160px;display:flex;align-items:center;font-weight:600}
-    .row input,.row select{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
-    .img-box{display:flex;align-items:center;gap:16px;margin-bottom:16px}
-    .img-box img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:1px solid #ddd}
-    .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
-    .btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer}
-    .btn-success{background:#16a34a;color:#fff}
-    .btn-danger{background:#ef4444;color:#fff;text-decoration:none;display:inline-block}
+    body {
+      font-family: sans-serif;
+      background: #f2f3f5
+    }
+
+    .card {
+      max-width: 720px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .08)
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px
+    }
+
+    .row label {
+      width: 160px;
+      display: flex;
+      align-items: center;
+      font-weight: 600
+    }
+
+    .row input,
+    .row select {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px
+    }
+
+    .img-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px
+    }
+
+    .img-box img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #ddd
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 16px
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h2>Edit Profile</h2>
@@ -76,8 +142,8 @@ $row = $stmt->get_result()->fetch_assoc();
       </div>
       <div class="row"><label>Gender</label>
         <select name="sex">
-          <option value="Male"   <?= ($row['sex'] ?? '')==='Male'?'selected':''; ?>>Male</option>
-          <option value="Female" <?= ($row['sex'] ?? '')==='Female'?'selected':''; ?>>Female</option>
+          <option value="Male" <?= ($row['sex'] ?? '') === 'Male' ? 'selected' : ''; ?>>Male</option>
+          <option value="Female" <?= ($row['sex'] ?? '') === 'Female' ? 'selected' : ''; ?>>Female</option>
         </select>
       </div>
       <div class="row"><label>Address</label>
@@ -97,4 +163,5 @@ $row = $stmt->get_result()->fetch_assoc();
     </form>
   </div>
 </body>
+
 </html>

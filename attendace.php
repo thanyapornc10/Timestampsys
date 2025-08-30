@@ -1,42 +1,40 @@
 <?php
 session_start();
-
 if (empty($_SESSION['user_id'])) {
   header("Location: login.php");
+  exit();
 }
 
 $servername = "localhost";
-$usersname = "root";
-$password = "";
-$database = "data_time";
-
+$usersname  = "root";
+$password   = "";
+$database   = "data_time";
 $conn = mysqli_connect($servername, $usersname, $password, $database);
-
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $user_id = $_SESSION['user_id'];
-  $date = $_POST['date'];
-  $time_in = $_POST['time_in'];
-  $reason = $_POST['reason'];
+$user_id = (int)$_SESSION['user_id'];
 
-  $sql = "INSERT INTO time_stamp (id_time, timedate, time_in, reason)
-            VALUES ($user_id, '$date', '$time_in', $reason)";
+$sql = "SELECT e.emp_id, e.fname, e.lname, d.dname, e.birth, e.sex, e.address, e.phone, e.email
+        FROM employee e
+        LEFT JOIN department d ON e.dep = d.dep_id
+        WHERE e.emp_id = $user_id";
+$result = $conn->query($sql);
+$user = ($result && $result->num_rows === 1) ? $result->fetch_assoc() : null;
 
-  if (mysqli_query($conn, $sql)) {
-    echo "Time recorded successfully";
-  } else {
-    echo "Time recording failed: " . mysqli_error($conn);
-  }
+$imageSql = "SELECT image_path FROM employee WHERE emp_id = $user_id";
+$imageResult = $conn->query($imageSql);
+if ($imageResult && $imageResult->num_rows > 0) {
+  $imgRow    = $imageResult->fetch_assoc();
+  $imagePath = !empty($imgRow['image_path']) ? $imgRow['image_path'] : "images/default2.jpg";
+} else {
+  $imagePath = "images/default2.jpg";
 }
-
+/* ---------------------------------------------------------------------- */
 ?>
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-
 <head>
   <meta charset="UTF-8" />
   <title>Attendace</title>
@@ -46,38 +44,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="js/submit.js" defer></script>
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    body {
-      background-image: url("images/natural.png");
-      background-size: cover;
-      background-position: center;
+    body{
+      background-image:url("images/natural.png");
+      background-size:cover;
+      background-position:center;
+      font-family:Arial, Helvetica, sans-serif;
     }
+    .datatime{
+      width:100%; text-align:center; margin-top:24px; color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.35);
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .datatime .date{ font-weight:700; font-variant-numeric:tabular-nums; font-size:clamp(16px,1.8vw,22px); margin-bottom:10px; }
+    .datatime .time{ font-weight:900; line-height:1.06; font-variant-numeric:tabular-nums; font-size:clamp(48px,7.5vw,96px); letter-spacing:1px; }
 
-    .attendaceform {
-      font-size: 20px;
-      position: absolute;
-      top: 45%;
-      left: 40%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      text-align: center;
+    .attendaceform, .attendaceformsec{
+      width:360px; font-size:18px; position:absolute; top:45%;
+      background:rgba(255,255,255,0.88); border-radius:18px; padding:22px 24px;
+      box-shadow:0 12px 24px rgba(0,0,0,0.18); text-align:center; backdrop-filter:blur(2px);
     }
+    .attendaceform{ left:33%; transform:translate(-50%,-50%); }
+    .attendaceformsec{ left:67%; transform:translate(-50%,-50%); }
 
-    .attendaceformsec {
-      font-size: 20px;
-      position: absolute;
-      top: 45%;
-      left: 60%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      text-align: center;
+    .box-title{ font-weight:900; font-size:26px; margin-bottom:12px; color:#0f172a; }
+    .label{ display:block; text-align:left; margin:10px 4px 6px; font-weight:700; color:#222; }
+    .display{ background:#fff; border:1px solid #ececec; border-radius:12px; padding:12px 14px; text-align:center; font-size:18px; margin-bottom:12px; }
+
+    select{ width:100%; padding:12px 12px; border:1px solid #d9d9d9; border-radius:12px; background:#fff; font-size:16px; outline:none; }
+
+    .btn-green{
+      width:100%; padding:14px 16px; border:none; border-radius:12px; background:#2eae4f; color:#fff;
+      font-weight:900; letter-spacing:.2px; cursor:pointer; margin-top:14px;
+      transition:transform .05s ease, filter .2s ease, box-shadow .2s ease;
+      box-shadow:0 6px 14px rgba(46,174,79,.28);
     }
+    .btn-green:hover{ filter:brightness(1.05); }
+    .btn-green:active{ transform:translateY(1px); }
   </style>
 </head>
 
@@ -112,9 +116,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </li>
       <li class="profile">
         <div class="profile-details">
-          <img src="images/default2.jpg" />
+          <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Employee Image" />
           <div class="name_job">
-            <div class="name">Employee</div>
+            <div class="name"><?php echo htmlspecialchars($user['fname'] ?? 'Employee'); ?></div>
             <div class="job">Welcome</div>
           </div>
         </div>
@@ -122,77 +126,117 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </li>
     </ul>
   </div>
+
   <section class="home-section">
     <div class="datatime">
-      <div class="time">00:00 AM</div>
-      <div class="date">Monday, 1 January 2000</div>
+      <div class="date" id="bigDate">Monday, 1 January 2000</div>
+      <div class="time" id="bigClock">00:00 AM</div>
     </div>
+
     <div class="attendaceform">
-      <h1>Time in</h1>
-      <form method="post" action="add_time.php">
-        <label for="date">Date:</label>
-        <input type="date" name="date" required><br><br>
-        <label for="time_in">Time in:</label>
-        <input type="time" name="time_in" required><br><br>
-        <label for="reason">Reason:</label>
+      <div class="box-title">Time In</div>
+      <div class="label">Current Time:</div>
+      <div class="display" id="showNowIn">--:--:--</div>
+
+      <form id="formIn" method="post" action="add_time.php">
+        <input type="hidden" name="date" id="dateIn">
+        <input type="hidden" name="time_in" id="timeIn">
+        <div class="label">Reason:</div>
         <select name="reason">
           <option value="1">-</option>
           <option value="2">leave</option>
           <option value="3">sick</option>
           <option value="4">other</option>
-        </select><br><br>
-        <input type="submit" value="บันทึกเวลา">
+        </select>
+        <button type="submit" class="btn-green">Check In</button>
       </form>
     </div>
+
     <div class="attendaceformsec">
-      <h1>Time out</h1>
-      <form method="post" action="update_time.php">
-        <label for="date">Date:</label>
-        <input type="date" name="date" required><br><br>
-        <label for="time_out">Time out:</label>
-        <input type="time" name="time_out" required><br><br>
-        <input type="submit" value="Save">
+      <div class="box-title">Time Out</div>
+      <div class="label">Current Time:</div>
+      <div class="display" id="showNowOut">--:--:--</div>
+
+      <form id="formOut" method="post" action="update_time.php">
+        <input type="hidden" name="date" id="dateOut">
+        <input type="hidden" name="time_out" id="timeOut">
+        <button type="submit" class="btn-green">Check Out</button>
       </form>
     </div>
   </section>
 
   <script>
-    //slidebar
-    let sidebar = document.querySelector(".sidebar");
-    let closeBtn = document.querySelector("#btn");
-    let searchBtn = document.querySelector(".bx-search");
-    closeBtn.addEventListener("click", () => {
+    const sidebar = document.querySelector(".sidebar");
+    const closeBtn = document.querySelector("#btn");
+    const searchBtn = document.querySelector(".bx-search");
+    closeBtn && closeBtn.addEventListener("click", () => {
       sidebar.classList.toggle("open");
-      menuBtnChange(); //calling the function(optional)
+      menuBtnChange();
     });
-    searchBtn.addEventListener("click", () => {
-      // Sidebar open when you click on the search iocn
+    searchBtn && searchBtn.addEventListener("click", () => {
       sidebar.classList.toggle("open");
-      menuBtnChange(); //calling the function(optional)
+      menuBtnChange();
     });
-    // following are the code to change sidebar button(optional)
-    function menuBtnChange() {
-      if (sidebar.classList.contains("open")) {
-        closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
-      } else {
-        closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+    function menuBtnChange(){
+      if(!closeBtn) return;
+      if(sidebar.classList.contains("open")){
+        closeBtn.classList.replace("bx-menu","bx-menu-alt-right");
+      }else{
+        closeBtn.classList.replace("bx-menu-alt-right","bx-menu");
       }
     }
-    // Check if the PHP has echoed a success message
-    let successMessage = "<?php echo isset($_POST['date']) ? 'Time recorded successfully' : '' ?>";
-    if (successMessage) {
-      alert(successMessage); // Optional: Show a message to the user
-      window.location.href = 'attendace.php'; // Redirect to the "attendace.php" page
-    }
 
-    // Check if the PHP has echoed a success message
-    let successMessage = "<?php echo isset($_POST['date']) ? 'Time recorded successfully' : '' ?>";
-    if (successMessage) {
-      alert(successMessage); // Optional: Show a message to the user
-      window.location.href = 'attendace.php'; // Redirect to the "attendace.php" page
+    const bigClock = document.getElementById('bigClock');
+    const bigDate  = document.getElementById('bigDate');
+    const showNowIn  = document.getElementById('showNowIn');
+    const showNowOut = document.getElementById('showNowOut');
+
+    const headerTimeFmt = new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hour12:true});
+    const headerDateFmt = new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    const boxTimeFmt    = new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+
+    function updateHeader(){
+      const now = new Date();
+      bigClock.textContent = headerTimeFmt.format(now);
+      bigDate.textContent  = headerDateFmt.format(now);
     }
+    function scheduleMinuteTicker(){
+      updateHeader();
+      const now = new Date();
+      const msToNextMinute = (60 - now.getSeconds())*1000 - now.getMilliseconds();
+      setTimeout(()=>{
+        updateHeader();
+        setInterval(updateHeader, 60000);
+      }, msToNextMinute);
+    }
+    scheduleMinuteTicker();
+
+    function updateBoxes(){
+      const now = new Date();
+      const t = boxTimeFmt.format(now);
+      showNowIn.textContent  = t;
+      showNowOut.textContent = t;
+    }
+    updateBoxes();
+    setInterval(updateBoxes, 1000);
+
+    function pad(n){ return n.toString().padStart(2,'0'); }
+    function nowDate(){
+      const d = new Date();
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    function nowTime(){
+      const d = new Date();
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+    document.getElementById('formIn').addEventListener('submit', ()=>{
+      document.getElementById('dateIn').value = nowDate();
+      document.getElementById('timeIn').value = nowTime();
+    });
+    document.getElementById('formOut').addEventListener('submit', ()=>{
+      document.getElementById('dateOut').value = nowDate();
+      document.getElementById('timeOut').value = nowTime();
+    });
   </script>
-
 </body>
-
 </html>

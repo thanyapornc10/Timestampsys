@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 29, 2025 at 11:01 AM
+-- Generation Time: Aug 30, 2025 at 09:16 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -62,22 +62,6 @@ INSERT INTO `adminuser` (`ad_id`, `useradmin`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cart`
---
-
-CREATE TABLE `cart` (
-  `id` int(100) NOT NULL,
-  `user_id` int(100) NOT NULL,
-  `pid` int(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `price` int(10) NOT NULL,
-  `quantity` int(10) NOT NULL,
-  `image` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `department`
 --
 
@@ -95,7 +79,7 @@ INSERT INTO `department` (`dep_id`, `dname`) VALUES
 (2, 'HR'),
 (3, 'CEO'),
 (4, 'SA'),
-(5, 'Sup');
+(5, 'Supp');
 
 -- --------------------------------------------------------
 
@@ -121,43 +105,13 @@ CREATE TABLE `employee` (
 --
 
 INSERT INTO `employee` (`emp_id`, `fname`, `lname`, `dep`, `sex`, `birth`, `email`, `phone`, `address`, `image_path`) VALUES
-(1013, 'Thanyaporn', 'Chumpu', 2, 'Female', '2003-11-10', 'thanyapornc@nu.ac.th', '0881569411', 'Chiangrai thailand', 'uploads/1.png'),
+(1013, 'Thanyaporn', 'Chumpu', 2, 'Female', '2003-11-10', 'thanyapornc@nu.ac.th', '0881569411', 'Chiangrai thailand', 'uploads/emp_1013_1756460734.png'),
 (1014, 'Keng', 'Harit', 1, 'Male', '1999-08-03', 'kenghrit@gmail.com', '0874136529', 'Phayao Thailand', ''),
-(1016, 'Preaploy', 'Boonsungnern', 5, 'Female', '2003-05-16', 'preaployb65@nu.ac.th', '0974156301', 'Phitsanulok', ''),
+(1016, 'Preaploy', 'Boonsungnern', 5, 'Female', '2003-05-16', 'preaployb65@gmail.com', '0974156301', 'Phitsanulok Thailand', 'uploads/emp_1016_1756536732.jpg'),
 (1017, 'Maprod', 'Kriboonlerd', 3, 'Male', '1996-02-01', 'maprodK96@gmail.com', '0612347891', 'Bangkok Thailand', ''),
-(1018, 'Pongpipat', 'Saiboontung', 4, 'Male', '1998-09-26', 'pongpipat26@gmail.com', '0874169405', 'Bangkok Thailand', '');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `orders`
---
-
-CREATE TABLE `orders` (
-  `id` int(100) NOT NULL,
-  `user_id` int(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `number` varchar(12) NOT NULL,
-  `method` varchar(50) NOT NULL,
-  `address` varchar(500) NOT NULL,
-  `total_products` varchar(1000) NOT NULL,
-  `total_price` int(100) NOT NULL,
-  `placed_on` date NOT NULL DEFAULT current_timestamp(),
-  `payment_status` varchar(20) NOT NULL DEFAULT 'pending'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `products`
---
-
-CREATE TABLE `products` (
-  `id` int(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `price` int(10) NOT NULL,
-  `image` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(1018, 'Pongpipat', 'Saiboontung', 4, 'Male', '1998-09-26', 'pongpipat26@gmail.com', '0874169405', 'Bangkok Thailand', 'uploads/emp_1018_1756460230.jpg'),
+(1019, 'Chanchai', 'Pongsit', 1, 'Male', '2000-06-06', 'chanchai@gmail.com', '0897458422', 'Khonkean Thailand', 'uploads/1.png'),
+(1020, 'Fhasarik', 'Jamsai', 5, 'Female', '2002-12-05', 'sarikJ12@gmail.com', '0874563112', 'Chiangmai Thailand', 'uploads/1.png');
 
 -- --------------------------------------------------------
 
@@ -195,18 +149,13 @@ CREATE TABLE `time_stamp` (
   `reason` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `user`
+-- Dumping data for table `time_stamp`
 --
 
-CREATE TABLE `user` (
-  `id` int(100) NOT NULL,
-  `name` varchar(20) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `time_stamp` (`time_num`, `id_time`, `timedate`, `time_in`, `time_out`, `reason`) VALUES
+(40, 1013, '2025-08-30', '13:47:21', '13:47:40', 1),
+(41, 1016, '2025-08-30', '13:52:25', '13:52:31', 1);
 
 -- --------------------------------------------------------
 
@@ -249,12 +198,6 @@ ALTER TABLE `adminuser`
   ADD PRIMARY KEY (`ad_id`);
 
 --
--- Indexes for table `cart`
---
-ALTER TABLE `cart`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `department`
 --
 ALTER TABLE `department`
@@ -266,18 +209,6 @@ ALTER TABLE `department`
 ALTER TABLE `employee`
   ADD PRIMARY KEY (`emp_id`),
   ADD KEY `dep` (`dep`);
-
---
--- Indexes for table `orders`
---
-ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `products`
---
-ALTER TABLE `products`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `reason`
@@ -292,12 +223,6 @@ ALTER TABLE `time_stamp`
   ADD PRIMARY KEY (`time_num`),
   ADD KEY `emp` (`id_time`),
   ADD KEY `have` (`reason`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `users`
@@ -323,12 +248,6 @@ ALTER TABLE `adminuser`
   MODIFY `ad_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `cart`
---
-ALTER TABLE `cart`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
@@ -338,19 +257,7 @@ ALTER TABLE `department`
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `emp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1019;
-
---
--- AUTO_INCREMENT for table `orders`
---
-ALTER TABLE `orders`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `products`
---
-ALTER TABLE `products`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT;
+  MODIFY `emp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1022;
 
 --
 -- AUTO_INCREMENT for table `reason`
@@ -362,19 +269,13 @@ ALTER TABLE `reason`
 -- AUTO_INCREMENT for table `time_stamp`
 --
 ALTER TABLE `time_stamp`
-  MODIFY `time_num` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT;
+  MODIFY `time_num` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_usenum` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_usenum` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables

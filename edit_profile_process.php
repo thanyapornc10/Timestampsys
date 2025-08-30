@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 if (empty($_SESSION['user_id'])) {
-    echo "<script>alert('กรุณาเข้าสู่ระบบ'); location='login.php';</script>";
+    echo "<script>alert('Please log in'); location='login.php';</script>";
     exit();
 }
 
@@ -23,7 +23,9 @@ try {
     $user_id = (int)$_SESSION['user_id'];
 
     $id      = isset($_POST['id']) ? (int)$_POST['id'] : $user_id;
-    if ($id !== $user_id) { throw new Exception("ไม่อนุญาตแก้ไขผู้ใช้อื่น"); }
+    if ($id !== $user_id) {
+        throw new Exception("Unauthorized to edit other users.");
+    }
 
     $fname   = $_POST['fname']   ?? '';
     $lname   = $_POST['lname']   ?? '';
@@ -46,30 +48,31 @@ try {
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
 
         if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception("อัปโหลดไฟล์ผิดพลาด (code: ".$_FILES['profile_image']['error'].")");
+            throw new Exception("File upload failed (code: " . $_FILES['profile_image']['error'] . ")");
         }
 
         $mime = mime_content_type($_FILES['profile_image']['tmp_name']);
-        if (!in_array($mime, ['image/jpeg','image/png'])) {
-            throw new Exception("อนุญาตเฉพาะ JPG/PNG เท่านั้น");
+        if (!in_array($mime, ['image/jpeg', 'image/png'])) {
+            throw new Exception("Only JPG/PNG images are allowed.");
         }
-        if ($_FILES['profile_image']['size'] > 5*1024*1024) {
-            throw new Exception("ไฟล์รูปต้องไม่เกิน 5MB");
+
+        if ($_FILES['profile_image']['size'] > 5 * 1024 * 1024) {
+            throw new Exception("File size must not exceed 5MB.");
         }
 
         $uploadDir = __DIR__ . "/uploads";
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
-                throw new Exception("สร้างโฟลเดอร์อัปโหลดไม่สำเร็จ");
+                throw new Exception("Failed to create upload folder.");
             }
         }
 
         $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-        $newName = "emp_{$id}_" . time() . "." . $ext;
+        $newName = "emp_" . $id . "_" . time() . "." . $ext;
         $targetPath = $uploadDir . "/" . $newName;
 
         if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $targetPath)) {
-            throw new Exception("ย้ายไฟล์รูปไม่สำเร็จ");
+            throw new Exception("Failed to move uploaded file.");
         }
 
         $relativePath = "uploads/" . $newName;
@@ -82,16 +85,16 @@ try {
 
     $conn->commit();
 
-    $msg = "บันทึกสำเร็จ";
-    if ($uploadedImage) $msg .= " และอัปโหลดรูปสำเร็จ";
+    $msg = "Saved successfully";
+    if ($uploadedImage) $msg .= " and profile image uploaded successfully";
     echo "<script>alert('$msg'); location='profile.php';</script>";
     exit();
-
 } catch (Throwable $e) {
     if (isset($conn) && $conn->errno === 0) {
         $conn->rollback();
     }
+
     $err = addslashes($e->getMessage());
-    echo "<script>alert('บันทึกล้มเหลว: $err'); history.back();</script>";
+    echo "<script>alert('Save failed: $err'); history.back();</script>";
     exit();
 }

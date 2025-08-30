@@ -28,17 +28,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $update_sql = "UPDATE time_stamp SET time_out = '$time_out' WHERE id_time = $user_id AND timedate = '$date' AND time_out IS NULL";
 
         if (mysqli_query($conn, $update_sql)) {
-            echo "อัพเดตเวลาเรียบร้อย";
+            echo "Time recorded successfully";
         } else {
-            echo "การอัพเดตเวลาล้มเหลว: " . mysqli_error($conn);
+            echo "Time recording failed: " . mysqli_error($conn);
         }
     } else {
-        echo "ไม่พบข้อมูลเวลาที่ต้องการอัพเดต";
+        echo "No attendance data";
     }
 }
 ?>
 <script>
-    let successMessage = "<?php echo isset($_POST['date']) ? 'บันทึกเวลาเรียบร้อย' : '' ?>";
+    let successMessage = "<?php echo isset($_POST['date']) ? 'Time recorded successfully' : '' ?>";
     if (successMessage) {
         alert(successMessage);
         window.location.href = 'attendace.php';

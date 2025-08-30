@@ -89,14 +89,14 @@ $result = $conn->query($sql);
             </li>
             <li>
                 <a href="reportemployee.php">
-                    <i class="bx bx-pie-chart-alt-2"></i>
+                    <i class="bx bx-user"></i>
                     <span class="links_name">Employee</span>
                 </a>
                 <span class="tooltip">Employee</span>
             </li>
             <li>
                 <a href="reporttime.php">
-                    <i class="bx bx-user"></i>
+                    <i class="bx bx-pie-chart-alt-2"></i>
                     <span class="links_name">Reort</span>
                 </a>
                 <span class="tooltip">Report</span>

@@ -18,7 +18,7 @@ require("connection.php");
    <link rel="stylesheet" href="css/loginst.css">
 </head>
 <div class="overlay">
-   <form method="post" action="login_process.php">
+   <form action="login_process.php" method="POST">
       <div class="con">
          <header class="head-form">
             <i class="bi bi-person-fill" style="font-size: 3rem;"></i>

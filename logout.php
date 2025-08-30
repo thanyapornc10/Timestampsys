@@ -1,5 +1,5 @@
 <?php
-session_start(); // Start or resume the existing session
+session_start(); // Start or resume
 
 $_SESSION = array();
 

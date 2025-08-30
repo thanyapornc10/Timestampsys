@@ -31,7 +31,7 @@ mysqli_close($conn);
     <title>Dashbord</title>
     <link rel="stylesheet" href="css/dashst.css" />
     <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         body {
             background-image: url("images/hill.jpg");
@@ -57,7 +57,7 @@ mysqli_close($conn);
             font-size: 36px;
         }
 
-          .home-section {
+        .home-section {
             position: relative;
             background: #e4e9f7;
             min-height: 100vh;
@@ -70,7 +70,8 @@ mysqli_close($conn);
             justify-content: center;
             align-items: center;
         }
-        .sidebar.open ~ .home-section {
+
+        .sidebar.open~.home-section {
             left: 250px;
             width: calc(100% - 250px);
         }
@@ -94,14 +95,14 @@ mysqli_close($conn);
             </li>
             <li>
                 <a href="reportemployee.php">
-                    <i class="bx bx-pie-chart-alt-2"></i>
+                    <i class="bx bx-user"></i>
                     <span class="links_name">Employee</span>
                 </a>
                 <span class="tooltip">Employee</span>
             </li>
             <li>
                 <a href="reporttime.php">
-                    <i class="bx bx-user"></i>
+                    <i class="bx bx-pie-chart-alt-2"></i>
                     <span class="links_name">Reort</span>
                 </a>
                 <span class="tooltip">Report</span>
@@ -120,16 +121,16 @@ mysqli_close($conn);
     </div>
     <section class="home-section">
         <div class="content">
-                <div class="alert alert-primary" role="alert">
-                    <?php if ($result->num_rows > 0) {
-                        $row = $result->fetch_assoc();
-                        $employeeCount = $row["employee_count"];
-                        echo "Total Employee: " . $employeeCount;
-                    } else {
-                        echo "Employee information not found";
-                    } ?></span>
-                </div>
+            <div class="alert alert-primary" role="alert">
+                <?php if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    $employeeCount = $row["employee_count"];
+                    echo "Total Employee: " . $employeeCount;
+                } else {
+                    echo "Employee information not found";
+                } ?></span>
             </div>
+        </div>
     </section>
     <script>
         let sidebar = document.querySelector(".sidebar");
@@ -143,6 +144,7 @@ mysqli_close($conn);
             sidebar.classList.toggle("open");
             menuBtnChange();
         });
+
         function menuBtnChange() {
             if (sidebar.classList.contains("open")) {
                 closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");
